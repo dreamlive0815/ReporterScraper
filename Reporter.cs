@@ -176,6 +176,11 @@ namespace Scraper
 
         public void GuiqinReport()
         {
+            GuiqinReport(null);
+        }
+
+        public void GuiqinReport(ReportArgs args)
+        {
             var moduleId = GetModuleID(".归寝签到.归寝签到");
             if (moduleId == null) throw new Exception("无法获取归寝签到的操作id");
             var formParams = GetBaseParams();
@@ -196,7 +201,8 @@ namespace Scraper
                 formParams["pn"] = "1";
                 r = client.POST(relativeUri, formParams);
 
-                double jingdu = GuiqinJingdu, weidu = GuiqinWeidu;
+                double jingdu = args?.Jingdu ?? GuiqinJingdu;
+                double weidu = args?.Weidu ?? GuiqinWeidu;
                 CheckGuiqinLocation(jingdu, weidu);
 
                 formParams = GetBaseParams();
@@ -236,7 +242,7 @@ namespace Scraper
 
                 CloseSession();
 
-                var time = GuiqinTime;
+                var time = args?.Time ?? GuiqinTime;
                 formParams = new Dictionary<string, string>();
                 formParams["timetype"] = "1";
                 formParams["title"] = "%E6%9A%91%E6%9C%9F%E7%AD%BE%E5%88%B0";
@@ -318,6 +324,11 @@ namespace Scraper
 
         public void KeqianReport(string timetype)
         {
+            KeqianReport(timetype, null);
+        }
+
+        public void KeqianReport(string timetype, ReportArgs args)
+        {
             var moduleId = GetModuleID(".考勤体系.课前签到【测试】");
             if (moduleId == null) throw new Exception("无法获取课前签到的操作id");
             var formParams = GetBaseParams();
@@ -354,7 +365,9 @@ namespace Scraper
                 formParams["pn"] = "1";
                 r = client.POST(relativeUri, formParams);
 
-                double jingdu = KeqianJingdu, weidu = KeqianWeidu;
+
+                double jingdu = args?.Jingdu ?? KeqianJingdu;
+                double weidu = args?.Weidu ?? KeqianWeidu;
                 CheckKeqianLocation(jingdu, weidu);
 
                 formParams = GetBaseParams();
@@ -394,7 +407,7 @@ namespace Scraper
 
                 CloseSession();
 
-                var time = GetKeqianTimeByTimetype(timetype);
+                var time = args?.Time ?? GetKeqianTimeByTimetype(timetype);
                 formParams = new Dictionary<string, string>();
                 formParams["timetype"] = "0";
                 formParams["title"] = "%E8%80%83%E5%8B%A4%E7%AD%BE%E5%88%B0";
@@ -481,6 +494,15 @@ namespace Scraper
         }
     }
 
+
+    class ReportArgs
+    {
+        public string Time { get; set; }
+
+        public double? Jingdu { get; set; }
+
+        public double? Weidu { get; set; }
+    }
 
     class ReporterException : Exception
     {
